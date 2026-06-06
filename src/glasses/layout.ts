@@ -11,9 +11,9 @@ export const evtLayer = new TextContainerProperty({
   borderWidth: 0, borderColor: 0, paddingLength: 0,
   containerID: 1, containerName: 'evt', isEventCapture: 1, content: ' ',
 })
-// 上部ラベル
+// 上部ラベル "ANGER MANAGEMENT"（実測幅184px）を画面中央に。x=(576-184)/2=196
 export const labelC = new TextContainerProperty({
-  xPosition: 188, yPosition: 8, width: 200, height: 28,
+  xPosition: 196, yPosition: 8, width: 200, height: 28,
   borderWidth: 0, paddingLength: 0,
   containerID: 2, containerName: 'label', isEventCapture: 0, content: ' ',
 })
