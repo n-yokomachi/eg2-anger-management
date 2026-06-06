@@ -15,11 +15,14 @@ test('menuText は選択行に > を付ける', () => {
   expect(t).toContain('  Resume')
 })
 
-test('wrapAtPunctuation は文末句（。！？ / . ! ?）で折り返す', () => {
+test('wrapAtPunctuation は文末句（。！？ / . ! ?）とセミコロンで折り返す', () => {
   expect(wrapAtPunctuation('腹が立ったら数えよ。とても腹が立ったら数えよ。'))
     .toBe('腹が立ったら数えよ。\nとても腹が立ったら数えよ。')
   expect(wrapAtPunctuation('When angry count ten. Then a hundred.'))
     .toBe('When angry count ten.\nThen a hundred.')
+  // セミコロンで折り返す・カンマでは折り返さない（ジェファーソン）
+  expect(wrapAtPunctuation('When angry, count ten before you speak; if very angry, a hundred.'))
+    .toBe('When angry, count ten before you speak;\nif very angry, a hundred.')
 })
 
 test('wrapAtPunctuation はカンマ・読点では折り返さない', () => {

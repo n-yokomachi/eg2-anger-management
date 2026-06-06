@@ -26,12 +26,12 @@ export function menuText(header: string, items: string[], selected: number): str
   const lines = items.map((it, i) => (i === selected ? `> ${it}` : `  ${it}`))
   return `${header}\n\n${lines.join('\n')}`
 }
-// 名言を文末句で折り返す（日本語の。！？ / 英語の . ! ? の直後で改行）。
-// カンマ(,)・読点(、)・セミコロン(;)では改行しない。
+// 名言を文末句・セミコロンで折り返す（日本語の。！？ / 英語の . ! ? ; の直後で改行）。
+// カンマ(,)・読点(、)では改行しない。
 export function wrapAtPunctuation(s: string): string {
   return s
     .replace(/([。！？])/g, '$1\n')    // 日本語の句点・感嘆・疑問の直後
-    .replace(/([.!?])\s+/g, '$1\n')   // 英語の文末句＋空白の直後
+    .replace(/([.;!?])\s+/g, '$1\n')  // 英語の文末句・セミコロン＋空白の直後
     .replace(/\n+/g, '\n')
     .replace(/\n$/, '')
 }
