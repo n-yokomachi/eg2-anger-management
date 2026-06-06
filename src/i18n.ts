@@ -3,16 +3,15 @@ import type { Lang, Region, FinisherMode } from './settings'
 // ── グラス側文言 ──
 export interface GlassesStrings {
   title: string          // カウント中の上部ラベル
-  menuResume: string
   menuRestart: string
   menuExit: string
   pausedLabel: string
   nextLabel: string
 }
 export const GLASSES: Record<Lang, GlassesStrings> = {
-  en: { title: 'ANGER MANAGEMENT', menuResume: 'Resume', menuRestart: 'Again',
+  en: { title: 'ANGER MANAGEMENT', menuRestart: 'Again',
         menuExit: 'Exit', pausedLabel: 'PAUSED', nextLabel: 'NEXT?' },
-  ja: { title: 'ANGER MANAGEMENT', menuResume: '再開', menuRestart: 'もう一度',
+  ja: { title: 'ANGER MANAGEMENT', menuRestart: 'もう一度',
         menuExit: '終了', pausedLabel: 'PAUSED', nextLabel: 'NEXT?' },
 }
 

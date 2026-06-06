@@ -75,39 +75,32 @@ function restartFlow(): void {
   else void startCount()
 }
 
-function pausedItems(lang: Lang): string[] {
-  const g = GLASSES[lang]; return [g.menuResume, g.menuRestart, g.menuExit]
-}
-function nextItems(lang: Lang): string[] {
+// PAUSED / NEXT とも選択肢は [もう一度, 終了]（再開はもう一度と同じ動きのため廃止）
+function menuItems(lang: Lang): string[] {
   const g = GLASSES[lang]; return [g.menuRestart, g.menuExit]
 }
 async function showPaused(): Promise<void> {
   mode = 'paused'; menuSel = 0
   countToken++ // 進行中カウントを止める
-  await enterMenu(rB, GLASSES[settings.language].pausedLabel, pausedItems(settings.language), menuSel)
+  await enterMenu(rB, GLASSES[settings.language].pausedLabel, menuItems(settings.language), menuSel)
 }
 async function showNext(): Promise<void> {
   mode = 'next'; menuSel = 0
-  await enterMenu(rB, GLASSES[settings.language].nextLabel, nextItems(settings.language), menuSel)
+  await enterMenu(rB, GLASSES[settings.language].nextLabel, menuItems(settings.language), menuSel)
 }
 
 async function moveSel(delta: number): Promise<void> {
-  const items = mode === 'paused' ? pausedItems(settings.language) : nextItems(settings.language)
+  const items = menuItems(settings.language)
   menuSel = (menuSel + delta + items.length) % items.length
   const header = mode === 'paused' ? GLASSES[settings.language].pausedLabel : GLASSES[settings.language].nextLabel
   await updateMenu(rB, header, items, menuSel)
 }
 
+// PAUSED / NEXT とも [もう一度, 終了]: 0=もう一度(数え直し) / 1=終了
 async function confirmSel(): Promise<void> {
-  if (mode === 'paused') {
-    // [再開, もう一度, 終了] — 再開/もう一度はどちらも最初から数え直す（簡潔仕様）
-    if (menuSel === 2) void bridge.shutDownPageContainer(0)
-    else await startCount()
-  } else if (mode === 'next') {
-    // [もう一度, 終了]
-    if (menuSel === 1) void bridge.shutDownPageContainer(0)
-    else await startCount()
-  }
+  if (mode !== 'paused' && mode !== 'next') return
+  if (menuSel === 1) void bridge.shutDownPageContainer(0)
+  else await startCount()
 }
 
 // ── 入力配線 ──

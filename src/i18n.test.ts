@@ -4,7 +4,7 @@ import { GLASSES, UI, regionReason, finisherReason } from './i18n'
 test('グラス文言が両言語で揃う', () => {
   expect(GLASSES.ja.title).toBeTruthy()
   expect(GLASSES.en.title).toBeTruthy()
-  expect(GLASSES.ja.menuResume).toBeTruthy()
+  expect(GLASSES.ja.menuRestart).toBeTruthy()
   expect(GLASSES.en.menuExit).toBeTruthy()
 })
 
