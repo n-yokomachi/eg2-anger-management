@@ -80,10 +80,11 @@ d.rectangle([cx - 104, cy - 50, cx + 104, cy + 50], fill=0)
 managed_text(d)
 im.save(os.path.join(OUT, 'halftone.png'))
 
-# 3) 衝撃波リング（完全な同心円＝途切れさせない。文字は黒フチで可読化）
+# 3) 衝撃波リング（元の大きいサイズ。黒矩形でのくり抜きはせず、文字は黒フチ(stroke)で可読化
+#    ＝リングは途切れず、文字周りだけ局所的に背景が抜ける）
 im = Image.new('L', (FW, FH), 0); d = ImageDraw.Draw(im)
-for rr in range(14, 73, 14):  # 14,28,42,56,70 — すべて画像内(高さ144)に完全収納
-    d.ellipse([cx - rr, cy - rr, cx + rr, cy + rr], outline=170, width=3)
+for rr in range(20, 200, 22):
+    d.ellipse([cx - rr, cy - rr, cx + rr, cy + rr], outline=150, width=3)
 managed_text(d, stroke=7)
 im.save(os.path.join(OUT, 'shockwave.png'))
 

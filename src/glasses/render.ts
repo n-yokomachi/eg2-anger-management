@@ -62,13 +62,17 @@ const up = (b: Bridge, id: number, name: string, content: string) =>
   b.textContainerUpgrade(new TextContainerUpgrade({ containerID: id, containerName: name, content: content || ' ' }))
     .catch(() => {})
 
-// カウント開始。firstTime はページ作成、以降は rebuild（前状態の画像を確実に消す）。
-export async function enterCounting(
-  bridge: Bridge, lang: Lang, dotsTotal: number, firstTime: boolean,
-): Promise<void> {
-  const payload = pageWith({ label: GLASSES[lang].title, dots: progressDots(dotsTotal, 0) }, [bignumImg])
-  if (firstTime) await bridge.createStartUpPageContainer(new CreateStartUpPageContainer(payload))
-  else await bridge.rebuildPageContainer(new RebuildPageContainer(payload))
+// 起動時に1度だけ空ページを作成する（以降の状態遷移はすべて rebuild）。
+// これを最初に呼ばないと rebuild が土台のないページに対して走り、前状態が残る。
+export async function createPage(bridge: Bridge): Promise<void> {
+  await bridge.createStartUpPageContainer(new CreateStartUpPageContainer(pageWith({})))
+}
+
+// カウント開始（rebuild。状態に必要な bignum 画像だけ宣言し、他状態の画像残留を断つ）。
+export async function enterCounting(bridge: Bridge, lang: Lang, dotsTotal: number): Promise<void> {
+  await bridge.rebuildPageContainer(new RebuildPageContainer(
+    pageWith({ label: GLASSES[lang].title, dots: progressDots(dotsTotal, 0) }, [bignumImg]),
+  ))
 }
 
 // カウント1コマ: 進捗ドット更新＋大判数字画像。前描画完了まで await。

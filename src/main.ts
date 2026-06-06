@@ -4,7 +4,7 @@ import { countSequence } from './counter'
 import { pickFinisher, MANAGED_DESIGNS } from './finisher'
 import { QUOTES } from './quotes'
 import { GLASSES } from './i18n'
-import { enterCounting, tickCount, enterMenu, updateMenu, enterQuote, enterManaged } from './glasses/render'
+import { createPage, enterCounting, tickCount, enterMenu, updateMenu, enterQuote, enterManaged } from './glasses/render'
 import { mountPhoneUi } from './phone/ui'
 import type { Settings, Lang, Region, FinisherMode } from './settings'
 
@@ -21,7 +21,6 @@ type Mode = 'counting' | 'paused' | 'finisher' | 'next' | 'showcase'
 let mode: Mode = 'counting'
 let seq: number[] = []
 let menuSel = 0
-let pageCreated = false
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
 
 // 進捗ドット数: japan=6 / america=10（カウント0と演出は含めない）
@@ -34,8 +33,7 @@ async function startCount(): Promise<void> {
   seq = countSequence(settings.region)
   const total = dotsTotalFor(settings.region)
   const token = ++countToken
-  await enterCounting(rB, settings.language, total, !pageCreated)
-  pageCreated = true
+  await enterCounting(rB, settings.language, total)
   for (let idx = 0; idx < seq.length; idx++) {
     if (token !== countToken || mode !== 'counting') return // 中断（メニュー等）
     await tickCount(rB, seq[idx], total, Math.min(idx + 1, total))
@@ -145,6 +143,7 @@ function renderPhone() {
 }
 
 // ── 起動 ──
+await createPage(rB) // 先に空ページを作成してから状態遷移（rebuild）に入る
 renderPhone()
 if (settings.testMode) void runShowcase()
 else void startCount()
