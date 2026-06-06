@@ -1,7 +1,7 @@
 import { TextContainerProperty, ImageContainerProperty } from '@evenrealities/even_hub_sdk'
 
-// 画像サイズ（assets と一致）
-export const BIGNUM = { w: 120, h: 144, x: 228, y: 72 } as const // 中央
+// 画像サイズ（assets と一致）。BIGNUM は "10" も収まる幅で画面中央 (x=(576-200)/2=188, y=(288-144)/2=72)。
+export const BIGNUM = { w: 200, h: 144, x: 188, y: 72 } as const // 中央
 export const FINIMG = { w: 288, h: 144, x: 144, y: 72 } as const // 中央
 
 // ── テキスト ──

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Anger Management 用のグレースケールPNG生成。白(255)=点灯 / 黒(0)=透明。
-- 数字 d0..d10 : 120x144（大判カウント表示）
+- 数字 d0..d10 : 200x144（大判カウント表示・インク切り出しで厳密中央）
 - finisher 4種: 288x144（中央表示・ANGER MANAGED 文字を焼き込み）
 - icon.png    : アプリアイコン
 """
@@ -24,74 +24,85 @@ def font(size):
             except Exception: pass
     return ImageFont.load_default()
 
-def text_center(d, box, s, f, fill=255):
-    x0, y0, x1, y1 = box
-    l, t, r, b = d.textbbox((0, 0), s, font=f)
-    tw, th = r - l, b - t
-    d.text((x0 + (x1 - x0 - tw) / 2 - l, y0 + (y1 - y0 - th) / 2 - t), s, font=f, fill=fill)
+# 文字を実インクで切り出した画像を返す（字ごとのベアリング差を排除して厳密中央配置するため）。
+def text_img(s, f, stroke=0):
+    tmp = Image.new('L', (1600, 500), 0)
+    ImageDraw.Draw(tmp).text((40, 40), s, font=f, fill=255, stroke_width=stroke, stroke_fill=0)
+    bbox = tmp.getbbox()
+    return tmp.crop(bbox)
 
-# ── 数字 d0..d10（120x144）──
-DW, DH = 120, 144
-fbig = font(150)
+# 箱の中央へ実インクを貼る（厳密中央。背景は黒＝透明なので装飾の無い場所向け）。
+def paste_center(dst, glyph, box):
+    x0, y0, x1, y1 = box
+    dst.paste(glyph, (int(x0 + (x1 - x0 - glyph.width) / 2),
+                      int(y0 + (y1 - y0 - glyph.height) / 2)))
+
+# 装飾の上に直接描く中央寄せ（黒フチ stroke で下地を局所的に隠して可読化）。
+def draw_center(d, box, s, f, fill=255, stroke=0):
+    l, t, r, b = d.textbbox((0, 0), s, font=f, stroke_width=stroke)
+    tw, th = r - l, b - t
+    x0, y0, x1, y1 = box
+    d.text((x0 + (x1 - x0 - tw) / 2 - l, y0 + (y1 - y0 - th) / 2 - t),
+           s, font=f, fill=fill, stroke_width=stroke, stroke_fill=0)
+
+# ── 数字 d0..d10（200x144・インク切り出しで厳密中央）──
+DW, DH = 200, 144
 for n in range(0, 11):
+    f = font(140) if n < 10 else font(120)  # "10" は2桁ぶん少し小さく
     im = Image.new('L', (DW, DH), 0)
-    d = ImageDraw.Draw(im)
-    f = font(150) if n < 10 else font(108)  # "10" は2桁ぶん少し小さく
-    text_center(d, (0, 0, DW, DH), str(n), f)
+    paste_center(im, text_img(str(n), f), (0, 0, DW, DH))
     im.save(os.path.join(OUT, f'd{n}.png'))
 
-# ── フィニッシャー共通: ANGER MANAGED 文字（288x144に2行）──
+# ── フィニッシャー共通 ──
 FW, FH = 288, 144
-def draw_managed_text(d, fill=255):
-    f = font(46)
-    text_center(d, (0, 8, FW, 76), 'ANGER', f, fill)
-    text_center(d, (0, 72, FW, 140), 'MANAGED', f, fill)
-
-# 1) 集中線
-im = Image.new('L', (FW, FH), 0); d = ImageDraw.Draw(im)
 cx, cy = FW / 2, FH / 2
+def managed_text(d, stroke=0):
+    f = font(46)
+    draw_center(d, (0, 8, FW, 76), 'ANGER', f, 255, stroke)
+    draw_center(d, (0, 72, FW, 140), 'MANAGED', f, 255, stroke)
+
+# 1) 集中線（中央を楕円で抜いて文字スペースを確保）
+im = Image.new('L', (FW, FH), 0); d = ImageDraw.Draw(im)
 for a in range(0, 360, 6):
     rad = math.radians(a)
     d.line([(cx, cy), (cx + math.cos(rad) * 400, cy + math.sin(rad) * 400)], fill=120, width=2)
-d.ellipse([cx - 96, cy - 56, cx + 96, cy + 56], fill=0)  # 中央を抜いて文字スペース
-draw_managed_text(d)
+d.ellipse([cx - 96, cy - 56, cx + 96, cy + 56], fill=0)
+managed_text(d)
 im.save(os.path.join(OUT, 'speedlines.png'))
 
-# 2) ハーフトーン網点
+# 2) ハーフトーン網点（中央を矩形で抜いて文字スペースを確保）
 im = Image.new('L', (FW, FH), 0); d = ImageDraw.Draw(im)
 for yy in range(8, FH, 14):
     for xx in range(8, FW, 14):
-        dist = math.hypot(xx - cx, yy - cy)
-        r = max(1, 5 - dist / 40)
-        d.ellipse([xx - r, yy - r, xx + r, yy + r], fill=150)
+        rr = max(1, 5 - math.hypot(xx - cx, yy - cy) / 40)
+        d.ellipse([xx - rr, yy - rr, xx + rr, yy + rr], fill=150)
 d.rectangle([cx - 104, cy - 50, cx + 104, cy + 50], fill=0)
-draw_managed_text(d)
+managed_text(d)
 im.save(os.path.join(OUT, 'halftone.png'))
 
-# 3) 衝撃波リング
+# 3) 衝撃波リング（完全な同心円＝途切れさせない。文字は黒フチで可読化）
 im = Image.new('L', (FW, FH), 0); d = ImageDraw.Draw(im)
-for rr in range(20, 200, 22):
-    d.ellipse([cx - rr, cy - rr, cx + rr, cy + rr], outline=130, width=3)
-d.rectangle([cx - 104, cy - 48, cx + 104, cy + 48], fill=0)
-draw_managed_text(d)
+for rr in range(14, 73, 14):  # 14,28,42,56,70 — すべて画像内(高さ144)に完全収納
+    d.ellipse([cx - rr, cy - rr, cx + rr, cy + rr], outline=170, width=3)
+managed_text(d, stroke=7)
 im.save(os.path.join(OUT, 'shockwave.png'))
 
-# 4) 角印スタンプ（斜め・かすれ無し）
-stamp = Image.new('L', (FW, FH), 0); sd = ImageDraw.Draw(stamp)
-# 正方向で角印を描いてから回転（斜め表示）
-box = Image.new('L', (180, 180), 0); bd = ImageDraw.Draw(box)
-bd.rectangle([6, 6, 173, 173], outline=255, width=6)
-bd.rectangle([18, 18, 161, 161], outline=255, width=3)
-bf = font(30)
-text_center(bd, (18, 30, 161, 88), 'ANGER', bf)
-text_center(bd, (18, 92, 161, 150), 'MANAGED', bf)
-box = box.rotate(13, expand=True, resample=Image.BICUBIC)
+# 4) 角印スタンプ（長方形・斜め・文字を枠内にきちんと収める）
+SB_W, SB_H = 236, 104
+box = Image.new('L', (SB_W, SB_H), 0); bd = ImageDraw.Draw(box)
+bd.rectangle([5, 5, SB_W - 6, SB_H - 6], outline=255, width=5)       # 外枠
+bd.rectangle([14, 14, SB_W - 15, SB_H - 15], outline=255, width=3)   # 内枠
+sf = font(28)
+paste_center(box, text_img('ANGER', sf), (16, 18, SB_W - 16, 54))
+paste_center(box, text_img('MANAGED', sf), (16, 52, SB_W - 16, SB_H - 18))
+box = box.rotate(8, expand=True, resample=Image.BICUBIC)
+stamp = Image.new('L', (FW, FH), 0)
 stamp.paste(box, (int(cx - box.width / 2), int(cy - box.height / 2)))
 stamp.save(os.path.join(OUT, 'stamp.png'))
 
 # ── アイコン ──
-ic = Image.new('L', (128, 128), 0); icd = ImageDraw.Draw(ic)
-text_center(icd, (0, 0, 128, 128), '6', font(110))
+ic = Image.new('L', (128, 128), 0)
+paste_center(ic, text_img('6', font(110)), (0, 0, 128, 128))
 ic.convert('RGB').save(os.path.join(ICON, 'icon.png'))
 
-print('assets generated:', os.listdir(OUT))
+print('assets generated:', sorted(os.listdir(OUT)))

@@ -1,10 +1,11 @@
 import type { Settings, Lang, Region, FinisherMode } from '../settings'
-import { UI, regionReason } from '../i18n'
+import { UI, regionReason, finisherReason } from '../i18n'
 
 export interface PhoneHandlers {
   onLanguage: (v: Lang) => void
   onRegion: (v: Region) => void
   onFinisher: (v: FinisherMode) => void
+  onTest: (v: boolean) => void
 }
 
 export function mountPhoneUi(s: Settings, h: PhoneHandlers): void {
@@ -17,21 +18,28 @@ export function mountPhoneUi(s: Settings, h: PhoneHandlers): void {
         <p class="am-status">${t.status}</p>
       </header>
 
-      <div class="am-lbl">LANGUAGE / ${t.language}</div>
+      <div class="am-lbl">LANGUAGE / 言語</div>
       <div class="am-seg" id="am-lang">
         <button data-v="en">English</button><button data-v="ja">日本語</button>
       </div>
 
-      <div class="am-lbl">REGION / ${t.region}</div>
+      <div class="am-lbl">REGION / 地域</div>
       <div class="am-seg" id="am-region">
         <button data-v="america">🇺🇸 ${t.america}</button><button data-v="japan">🇯🇵 ${t.japan}</button>
       </div>
-      <p class="am-why" id="am-why">${regionReason(s.region, s.language)}</p>
+      <p class="am-why" id="am-region-why">${regionReason(s.region, s.language)}</p>
 
-      <div class="am-lbl">FINISHER / ${t.finisher}</div>
+      <div class="am-lbl">FINISHER / 演出</div>
       <div class="am-seg am-seg3" id="am-fin">
-        <button data-v="quote">${t.finQuote}</button><button data-v="managed">${t.finManaged}</button><button data-v="both">${t.finBoth}</button>
+        <button data-v="quote">${t.finQuote}</button><button data-v="managed">${t.finManaged}</button><button data-v="both">${t.finRandom}</button>
       </div>
+      <p class="am-why" id="am-fin-why">${finisherReason(s.finisher, s.language)}</p>
+
+      <div class="am-lbl">TEST MODE / テスト</div>
+      <div class="am-seg" id="am-test">
+        <button data-v="off">OFF</button><button data-v="on">ON</button>
+      </div>
+      <p class="am-why">${t.testDesc}</p>
     </div>`
   injectStyles()
 
@@ -40,6 +48,7 @@ export function mountPhoneUi(s: Settings, h: PhoneHandlers): void {
     seg.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.v === v))
   }
   mark('#am-lang', s.language); mark('#am-region', s.region); mark('#am-fin', s.finisher)
+  mark('#am-test', s.testMode ? 'on' : 'off')
 
   app.querySelector('#am-lang')!.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest('button'); if (!b) return
@@ -48,12 +57,19 @@ export function mountPhoneUi(s: Settings, h: PhoneHandlers): void {
   app.querySelector('#am-region')!.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest('button'); if (!b) return
     const v = b.dataset.v as Region; mark('#am-region', v)
-    app.querySelector('#am-why')!.textContent = regionReason(v, s.language)
+    app.querySelector('#am-region-why')!.textContent = regionReason(v, s.language)
     h.onRegion(v)
   })
   app.querySelector('#am-fin')!.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest('button'); if (!b) return
-    const v = b.dataset.v as FinisherMode; mark('#am-fin', v); h.onFinisher(v)
+    const v = b.dataset.v as FinisherMode; mark('#am-fin', v)
+    app.querySelector('#am-fin-why')!.textContent = finisherReason(v, s.language)
+    h.onFinisher(v)
+  })
+  app.querySelector('#am-test')!.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest('button'); if (!b) return
+    const v = b.dataset.v === 'on'; mark('#am-test', v ? 'on' : 'off')
+    h.onTest(v)
   })
 }
 
@@ -68,7 +84,7 @@ function injectStyles() {
   .am-root{max-width:560px;margin:0 auto;padding:32px 20px;box-sizing:border-box}
   .am-head{margin-bottom:20px}
   .am-title{margin:0 0 6px;font-size:26px;font-weight:700;letter-spacing:-.02em}
-  .am-status{margin:0;font-size:14px;color:var(--dim)}
+  .am-status{margin:0;font-size:14px;color:var(--dim);white-space:pre-line}
   .am-lbl{font-size:12px;font-weight:800;letter-spacing:1.5px;color:var(--dim);margin:20px 0 8px}
   .am-seg{display:flex;background:var(--track);border-radius:12px;padding:4px;gap:4px}
   .am-seg button{flex:1;font:inherit;font-size:15px;font-weight:600;color:var(--text);background:transparent;border:0;

@@ -2,9 +2,10 @@ export type Lang = 'ja' | 'en'
 export type Region = 'america' | 'japan'      // カウントの数字・向きのみ決定
 export type FinisherMode = 'quote' | 'managed' | 'both'
 
-export interface Settings { language: Lang; region: Region; finisher: FinisherMode }
+// testMode: ON でカウントを行わず、全演出パターンを順番に表示する（デバッグ用）
+export interface Settings { language: Lang; region: Region; finisher: FinisherMode; testMode: boolean }
 
-export const DEFAULT_SETTINGS: Settings = { language: 'en', region: 'japan', finisher: 'both' }
+export const DEFAULT_SETTINGS: Settings = { language: 'en', region: 'japan', finisher: 'both', testMode: false }
 
 export function defaultLanguageFromCountry(country?: string | null): Lang {
   const c = (country ?? '').trim().toUpperCase()
@@ -19,7 +20,8 @@ export function parseSettings(raw: string | null | undefined, fallback: Settings
     const region: Region = o.region === 'america' ? 'america' : o.region === 'japan' ? 'japan' : fallback.region
     const finisher: FinisherMode =
       o.finisher === 'quote' || o.finisher === 'managed' || o.finisher === 'both' ? o.finisher : fallback.finisher
-    return { language, region, finisher }
+    const testMode: boolean = typeof o.testMode === 'boolean' ? o.testMode : fallback.testMode
+    return { language, region, finisher, testMode }
   } catch { return fallback }
 }
 

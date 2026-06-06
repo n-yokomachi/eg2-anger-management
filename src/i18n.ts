@@ -1,4 +1,4 @@
-import type { Lang, Region } from './settings'
+import type { Lang, Region, FinisherMode } from './settings'
 
 // ── グラス側文言 ──
 export interface GlassesStrings {
@@ -28,26 +28,42 @@ export function regionReason(region: Region, lang: Lang): string {
     : 'Counts up to ten, based on the Western folk advice to "count to ten".'
 }
 
-// ── スマホ側設定画面の文言（言語設定に追従）──
+// 演出セレクタ下の説明（選択中の演出が完了時に何を表示するか）
+export function finisherReason(mode: FinisherMode, lang: Lang): string {
+  if (lang === 'ja') {
+    switch (mode) {
+      case 'quote':   return '完了時に、怒りにまつわる偉人の名言をランダムで表示します。'
+      case 'managed': return '完了時に、派手な「ANGER MANAGED」グラフィックをランダムで表示します。'
+      default:        return '完了時に、名言か「ANGER MANAGED」のどちらかをランダムで表示します。'
+    }
+  }
+  switch (mode) {
+    case 'quote':   return 'On finish, shows a random famous quote about anger.'
+    case 'managed': return 'On finish, shows a random flashy "ANGER MANAGED" graphic.'
+    default:        return 'On finish, randomly shows either a quote or an "ANGER MANAGED" graphic.'
+  }
+}
+
+// ── スマホ側設定画面の文言（言語設定に追従）。セクション見出しは固定の英/日併記なのでここには含めない。──
 export interface UiStrings {
   title: string; status: string
-  language: string; region: string; finisher: string
   america: string; japan: string
-  finQuote: string; finManaged: string; finBoth: string
+  finQuote: string; finManaged: string; finRandom: string
+  testDesc: string
 }
 export const UI: Record<Lang, UiStrings> = {
   en: {
     title: 'Anger Management',
-    status: 'A joke app. Put on your glasses and it counts to calm you down — then drops a random finisher (a famous quote or a big ANGER MANAGED).',
-    language: 'Language', region: 'Region', finisher: 'Finisher',
+    status: '* This is a joke app.\nLaunch it and a countdown begins; when it finishes, a finisher plays.\nYour companion for anger management.',
     america: 'America', japan: 'Japan',
-    finQuote: 'Quote', finManaged: 'ANGER MANAGED', finBoth: 'Both',
+    finQuote: 'Quote', finManaged: 'ANGER MANAGED', finRandom: 'Random',
+    testDesc: 'When on, skips the count and cycles through every finisher in order (for testing).',
   },
   ja: {
     title: 'Anger Management',
-    status: 'ジョークアプリです。グラスをかけるとカウントが始まり、完了時に演出（偉人の名言 or 派手な ANGER MANAGED）をランダムに表示します。',
-    language: '言語', region: '地域', finisher: '演出',
+    status: '※これはジョークアプリです。\nアプリを起動するとカウントが始まり、完了すると演出が入ります。\nあなたのアンガーマネジメントのお供に。',
     america: 'America', japan: 'Japan',
-    finQuote: '名言', finManaged: 'ANGER MANAGED', finBoth: '両方',
+    finQuote: '名言', finManaged: 'ANGER MANAGED', finRandom: 'ランダム',
+    testDesc: 'ONにすると、カウントせず全ての演出を順番に表示します（テスト用）。',
   },
 }
