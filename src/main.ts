@@ -111,10 +111,26 @@ async function confirmSel(): Promise<void> {
 }
 
 // ── 入力配線 ──
+// 実機/シミュレータのイベント形式（実測）:
+//   クリック      → sysEvent（eventType 無し）
+//   ダブルクリック → sysEvent.eventType = 3
+//   上/下スクロール → textEvent.eventType = 1 / 2   ← sysEvent ではなく textEvent で届く
+//   退出         → sysEvent.eventType = 6 / 7
 const listenerStart = performance.now()
 bridge.onEvenHubEvent((ev) => {
-  if (!ev.sysEvent) return
-  const t = ev.sysEvent.eventType ?? 0
+  // システム退出（起動直後の誤発火は無視）
+  const sysType = ev.sysEvent?.eventType
+  if (sysType === OsEventTypeList.SYSTEM_EXIT_EVENT || sysType === OsEventTypeList.ABNORMAL_EXIT_EVENT) {
+    if (performance.now() - listenerStart < 3000) return
+    countToken++
+    return
+  }
+  // 入力種別: スクロールは textEvent、クリック/ダブルクリックは sysEvent から拾う
+  let t: number | undefined
+  if (typeof ev.textEvent?.eventType === 'number') t = ev.textEvent.eventType
+  else if (ev.sysEvent) t = ev.sysEvent.eventType ?? OsEventTypeList.CLICK_EVENT
+  if (t === undefined) return
+
   switch (t) {
     case OsEventTypeList.DOUBLE_CLICK_EVENT:
       if (mode === 'counting') void showPaused()
@@ -130,11 +146,6 @@ bridge.onEvenHubEvent((ev) => {
       break
     case OsEventTypeList.SCROLL_BOTTOM_EVENT:
       if (mode === 'paused' || mode === 'next') void moveSel(1)
-      break
-    case OsEventTypeList.SYSTEM_EXIT_EVENT:
-    case OsEventTypeList.ABNORMAL_EXIT_EVENT:
-      if (performance.now() - listenerStart < 3000) return
-      countToken++
       break
   }
 })

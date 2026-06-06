@@ -76,8 +76,8 @@ export function mountPhoneUi(s: Settings, h: PhoneHandlers): void {
 function injectStyles() {
   if (document.getElementById('am-style')) return
   const css = `
-  :root{--text:#232323;--dim:#7B7B7B;--bg:#F5F5F7;--surface:#FFF;--track:rgba(35,35,35,.06);--accent:#FEF991;color-scheme:light dark;}
-  @media (prefers-color-scheme: dark){:root{--text:#FFF;--dim:#8A8A8A;--bg:#0E0E0E;--surface:#1C1C1E;--track:rgba(255,255,255,.10);--accent:#FEF991;}}
+  /* 端末のダークモードに関わらずライト固定（color-scheme:light でフォーム等もライトに） */
+  :root{--text:#232323;--dim:#7B7B7B;--bg:#F5F5F7;--surface:#FFF;--track:rgba(35,35,35,.06);--accent:#FEF991;color-scheme:light;}
   html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
     font:400 16px/1.5 -apple-system,system-ui,'Hiragino Kaku Gothic ProN',sans-serif;letter-spacing:-.01em;
     -webkit-text-size-adjust:100%;touch-action:manipulation;}
