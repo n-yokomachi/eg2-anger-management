@@ -78,16 +78,18 @@ function injectStyles() {
   const css = `
   /* 端末のダークモードに関わらずライト固定（color-scheme:light でフォーム等もライトに） */
   :root{--text:#232323;--dim:#7B7B7B;--bg:#F5F5F7;--surface:#FFF;--track:rgba(35,35,35,.06);--accent:#FEF991;color-scheme:light;}
+  /* 英語はミニマルな Helvetica 系。日本語は Hiragino にフォールバック（Web読込なし=権限不要） */
   html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
-    font:400 16px/1.5 -apple-system,system-ui,'Hiragino Kaku Gothic ProN',sans-serif;letter-spacing:-.01em;
-    -webkit-text-size-adjust:100%;touch-action:manipulation;}
+    font:400 16px/1.5 'Helvetica Neue',Helvetica,Arial,'Hiragino Kaku Gothic ProN','Hiragino Sans',system-ui,sans-serif;
+    letter-spacing:-.01em;-webkit-text-size-adjust:100%;touch-action:manipulation;}
   .am-root{max-width:560px;margin:0 auto;padding:32px 20px;box-sizing:border-box}
   .am-head{margin-bottom:20px}
-  .am-title{margin:0 0 6px;font-size:26px;font-weight:700;letter-spacing:-.02em}
+  /* 太字は使わない（全般 weight:400 のミニマル指定） */
+  .am-title{margin:0 0 6px;font-size:26px;font-weight:400;letter-spacing:-.02em}
   .am-status{margin:0;font-size:14px;color:var(--dim);white-space:pre-line}
-  .am-lbl{font-size:12px;font-weight:800;letter-spacing:1.5px;color:var(--dim);margin:20px 0 8px}
+  .am-lbl{font-size:12px;font-weight:400;letter-spacing:1.5px;color:var(--dim);margin:20px 0 8px}
   .am-seg{display:flex;background:var(--track);border-radius:12px;padding:4px;gap:4px}
-  .am-seg button{flex:1;font:inherit;font-size:15px;font-weight:600;color:var(--text);background:transparent;border:0;
+  .am-seg button{flex:1;font:inherit;font-size:15px;font-weight:400;color:var(--text);background:transparent;border:0;
     padding:10px 6px;border-radius:9px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s}
   .am-seg button.on{background:var(--accent);color:#232323;box-shadow:0 1px 2px rgba(0,0,0,.12)}
   .am-seg3 button{font-size:13px}
