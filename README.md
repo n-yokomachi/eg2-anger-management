@@ -1,17 +1,35 @@
-# Anger Management (eg2-anger-management)
+# Anger Management
 
-Even Realities G2 向けジョークアプリ。カッとなったら起動 → グラスがカウント（日本式6秒 / 米国式10カウント）→ 完了時に偉人の名言か派手な「ANGER MANAGED」をランダム表示。表示専用・完全ローカル。
+A joke app for Even Realities G2 smart glasses. When a flash of anger hits, launch it and the glasses count for you — **6 seconds (Japan)** or **up to ten (USA)** — and when the count finishes, a random *finisher* plays: a famous quote about anger, or a flashy **ANGER MANAGED** graphic.
 
-> 「怒りのピークは6秒」も「count to ten」も学術的原典のない俗説。グラスは律儀に数えます。
+Display-only and fully local — no bridge, no network.
 
-## 設定（スマホ側）
-- **Language**: 表示言語（en / ja）
-- **Region**: 数え方（🇯🇵 6 / 🇺🇸 10）
-- **Finisher**: 完了演出（名言 / ANGER MANAGED / ランダム）
-- **Test Mode**: ON でカウントせず全演出を順番に表示（デバッグ用）
+> Neither "anger peaks for 6 seconds" nor "count to ten" has any real academic source. They're folk beliefs. The glasses count anyway.
 
-## 開発
-- `npm run assets` … 画像生成（要 Pillow）
-- `npm run dev` / `npm run simulate` … 開発・シミュレータ
-- `npm test` … 単体テスト
-- `npm run build && npm run pack` … `.ehpk` 生成
+## How it works
+
+- **Launch** → the countdown starts immediately: a big number with progress dots.
+- **When it finishes** → a random finisher appears.
+- **Double-tap during the count** → pause menu (Again / Exit).
+- **Tap on a finisher** → next menu (Again / Exit). Swipe to move the cursor, tap to select.
+
+## Settings (phone)
+
+- **Language** — `en` / `ja` (UI language).
+- **Region** — Japan (counts 6 → 1) or America (counts 1 → 10).
+- **Finisher** — Quote / ANGER MANAGED / Random.
+- **Test Mode** — on: skip the count and cycle through every finisher (tap to advance).
+
+## Tech
+
+Even Hub SDK app (Vite + TypeScript). 576×288 monochrome (1-bit) display. The 30-quote pool is fact-checked; misattributed quotes were removed and traditionally-attributed ones are marked "(trad.)".
+
+## Develop
+
+```bash
+npm run dev        # dev server (http://localhost:5173)
+npm run simulate   # desktop glasses simulator
+npm test           # unit tests
+npm run assets     # regenerate glasses graphics (requires Pillow)
+npm run build && npm run pack   # produce the .ehpk
+```
