@@ -40,18 +40,31 @@ export function quoteText(q: Quote, lang: Lang): string {
   return `"${wrapAtPunctuation(body)}"\n\n— ${authorLabel(q, lang)}`
 }
 
+// 進捗ドットの実測値（576x288・既定フォント）：● 1個の幅と中心間隔。
+// テキストは中央寄せできないので、ドット列の幅から逆算してコンテナ x を中央に置く。
+const DOT_GLYPH = 18, DOT_PITCH = 25
+export function centeredDotsX(n: number): number {
+  const rowW = (n - 1) * DOT_PITCH + DOT_GLYPH
+  return Math.round((576 - rowW) / 2)
+}
+
 // 指定テキスト内容でページ payload を組む。画像コンテナは「その状態で必要なものだけ」宣言する
 // ことで、rebuild 後に前状態の画像が残らない（数字と名言/メニューの被りを防ぐ排他制御）。
+// dotsX を渡すと進捗ドットのコンテナ x を上書きして中央化する。
 function pageWith(
   t: { label?: string; dots?: string; menu?: string; quote?: string },
   images: ImageContainerProperty[] = [],
+  dotsX?: number,
 ) {
   const set = (base: TextContainerProperty, content: string) =>
     new TextContainerProperty({ ...base, content: content || ' ' })
+  const dots = new TextContainerProperty({
+    ...dotsC, xPosition: dotsX ?? dotsC.xPosition, content: (t.dots ?? ' ') || ' ',
+  })
   const textObject = [
     set(evtLayer, ' '),
     set(labelC, t.label ?? ' '),
-    set(dotsC, t.dots ?? ' '),
+    dots,
     set(menuC, t.menu ?? ' '),
     set(quoteC, t.quote ?? ' '),
   ]
@@ -71,7 +84,7 @@ export async function createPage(bridge: Bridge): Promise<void> {
 // カウント開始（rebuild。状態に必要な bignum 画像だけ宣言し、他状態の画像残留を断つ）。
 export async function enterCounting(bridge: Bridge, lang: Lang, dotsTotal: number): Promise<void> {
   await bridge.rebuildPageContainer(new RebuildPageContainer(
-    pageWith({ label: GLASSES[lang].title, dots: progressDots(dotsTotal, 0) }, [bignumImg]),
+    pageWith({ label: GLASSES[lang].title, dots: progressDots(dotsTotal, 0) }, [bignumImg], centeredDotsX(dotsTotal)),
   ))
 }
 
