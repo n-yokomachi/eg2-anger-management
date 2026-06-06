@@ -1,8 +1,7 @@
 import { TextContainerProperty, ImageContainerProperty } from '@evenrealities/even_hub_sdk'
 
-// 画像サイズ（assets と一致）。BIGNUM は "10" も収まる幅で画面中央 (x=(576-200)/2=188, y=(288-144)/2=72)。
-export const BIGNUM = { w: 200, h: 144, x: 188, y: 72 } as const // 中央
-export const FINIMG = { w: 288, h: 144, x: 144, y: 72 } as const // 中央
+// 演出画像（中央 288×144）
+export const FINIMG = { w: 288, h: 144, x: 144, y: 72 } as const
 
 // ── テキスト ──
 // 全画面イベント捕捉層（唯一の isEventCapture:1）
@@ -35,19 +34,14 @@ export const quoteC = new TextContainerProperty({
   borderWidth: 0, paddingLength: 0,
   containerID: 5, containerName: 'quote', isEventCapture: 0, content: ' ',
 })
-
 // ── 画像 ──
-export const bignumImg = new ImageContainerProperty({
-  xPosition: BIGNUM.x, yPosition: BIGNUM.y, width: BIGNUM.w, height: BIGNUM.h,
-  containerID: 11, containerName: 'bignum',
+// 大きな数字（小型100×120画像・実機BLE高速化。画面中央 x=(576-100)/2=238, y=(288-120)/2=84）
+export const NUMIMG = { w: 100, h: 120, x: 238, y: 84 } as const
+export const numImg = new ImageContainerProperty({
+  xPosition: NUMIMG.x, yPosition: NUMIMG.y, width: NUMIMG.w, height: NUMIMG.h,
+  containerID: 11, containerName: 'num',
 })
 export const finImg = new ImageContainerProperty({
   xPosition: FINIMG.x, yPosition: FINIMG.y, width: FINIMG.w, height: FINIMG.h,
   containerID: 12, containerName: 'finimg',
 })
-
-export const PAGE = {
-  containerTotalNum: 7,
-  textObject: [evtLayer, labelC, dotsC, menuC, quoteC],
-  imageObject: [bignumImg, finImg],
-}

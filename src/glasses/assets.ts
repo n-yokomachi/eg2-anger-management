@@ -12,6 +12,11 @@ async function loadPng(name: string): Promise<ArrayBuffer> {
   return buf
 }
 
+// 演出画像などを事前にfetchしてキャッシュに載せる（カウント中に先読み→表示時のfetch遅延をゼロに）。
+export async function preloadImages(names: string[]): Promise<void> {
+  await Promise.all(names.map((n) => loadPng(n).catch(() => undefined)))
+}
+
 // 指定コンテナへ PNG を送る。失敗は握りつぶす（postMessage 失敗で落とさない）。
 // 画像の消去は rebuildPageContainer（render 側）で行うため、ここでは送信のみ。
 export async function sendImage(

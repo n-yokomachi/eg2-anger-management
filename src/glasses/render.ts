@@ -2,7 +2,7 @@ import {
   CreateStartUpPageContainer, RebuildPageContainer, TextContainerProperty, ImageContainerProperty,
   TextContainerUpgrade,
 } from '@evenrealities/even_hub_sdk'
-import { evtLayer, labelC, dotsC, menuC, quoteC, bignumImg, finImg } from './layout'
+import { evtLayer, labelC, dotsC, menuC, quoteC, numImg, finImg } from './layout'
 import { sendImage } from './assets'
 import { GLASSES } from '../i18n'
 import { authorLabel, type Quote } from '../quotes'
@@ -81,19 +81,20 @@ export async function createPage(bridge: Bridge): Promise<void> {
   await bridge.createStartUpPageContainer(new CreateStartUpPageContainer(pageWith({})))
 }
 
-// カウント開始（rebuild。状態に必要な bignum 画像だけ宣言し、他状態の画像残留を断つ）。
+// カウント開始（rebuild）。小型の数字画像コンテナを宣言（他状態の画像残留を断つ）。
 export async function enterCounting(bridge: Bridge, lang: Lang, dotsTotal: number): Promise<void> {
   await bridge.rebuildPageContainer(new RebuildPageContainer(
-    pageWith({ label: GLASSES[lang].title, dots: progressDots(dotsTotal, 0) }, [bignumImg], centeredDotsX(dotsTotal)),
+    pageWith({ label: GLASSES[lang].title, dots: progressDots(dotsTotal, 0) }, [numImg], centeredDotsX(dotsTotal)),
   ))
 }
 
-// カウント1コマ: 進捗ドット更新＋大判数字画像。前描画完了まで await。
+// カウント1コマ: 先に数字画像（遅い）を出し終えてから進捗ドット（テキスト＝即時）を更新する。
+// この順にすることで、画像読込が遅延しても「ドットだけ先に進んで数字とズレる」のを防ぐ。
 export async function tickCount(
   bridge: Bridge, n: number, dotsTotal: number, dotsFilled: number,
 ): Promise<void> {
+  await sendImage(bridge, 11, 'num', `d${n}.png`)
   await up(bridge, 3, 'dots', progressDots(dotsTotal, dotsFilled))
-  await sendImage(bridge, 11, 'bignum', `d${n}.png`)
 }
 
 // メニュー表示（rebuild で画像を消す）。
@@ -109,12 +110,12 @@ export async function updateMenu(
   await up(bridge, 4, 'menu', menuText(header, items, selected))
 }
 
-// 名言フィニッシャー（画像なし・rebuild で数字画像を消す）。
+// 名言フィニッシャー（画像なし）。
 export async function enterQuote(bridge: Bridge, q: Quote, lang: Lang): Promise<void> {
   await bridge.rebuildPageContainer(new RebuildPageContainer(pageWith({ quote: quoteText(q, lang) })))
 }
 
-// ANGER MANAGED フィニッシャー（rebuild で数字画像を消去 → 中央に画像1枚）。
+// ANGER MANAGED フィニッシャー（rebuild → 中央に画像1枚）。
 export async function enterManaged(bridge: Bridge, design: ManagedDesign): Promise<void> {
   await bridge.rebuildPageContainer(new RebuildPageContainer(pageWith({}, [finImg])))
   await sendImage(bridge, 12, 'finimg', `${design}.png`)

@@ -5,6 +5,7 @@ import { pickFinisher, MANAGED_DESIGNS } from './finisher'
 import { QUOTES } from './quotes'
 import { GLASSES } from './i18n'
 import { createPage, enterCounting, tickCount, enterMenu, updateMenu, enterQuote, enterManaged } from './glasses/render'
+import { preloadImages } from './glasses/assets'
 import { mountPhoneUi } from './phone/ui'
 import type { Settings, Lang, Region, FinisherMode } from './settings'
 
@@ -127,6 +128,7 @@ bridge.onEvenHubEvent((ev) => {
   switch (t) {
     case OsEventTypeList.DOUBLE_CLICK_EVENT:
       if (mode === 'counting') void showPaused()
+      else if (mode === 'finisher') void showNext() // 演出後はタップ/ダブルタップ両方でメニュー
       else if (mode === 'showcase') { countToken++; void bridge.shutDownPageContainer(0) }
       break
     case OsEventTypeList.CLICK_EVENT:
@@ -155,6 +157,11 @@ function renderPhone() {
 
 // ── 起動 ──
 await createPage(rB) // 先に空ページを作成してから状態遷移（rebuild）に入る
+// 数字画像(d0..d10)と演出画像を起動時に先読み（fetch遅延をゼロに）
+void preloadImages([
+  ...Array.from({ length: 11 }, (_, i) => `d${i}.png`),
+  ...MANAGED_DESIGNS.map((d) => `${d}.png`),
+])
 renderPhone()
 if (settings.testMode) void runShowcase()
 else void startCount()
