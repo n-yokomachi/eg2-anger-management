@@ -35,8 +35,8 @@ export const quoteC = new TextContainerProperty({
   containerID: 5, containerName: 'quote', isEventCapture: 0, content: ' ',
 })
 // ── 画像 ──
-// 大きな数字（小型100×120画像・実機BLE高速化。画面中央 x=(576-100)/2=238, y=(288-120)/2=84）
-export const NUMIMG = { w: 100, h: 120, x: 238, y: 84 } as const
+// 大きな数字（小型80×100・1ビット画像で実機BLE高速化。画面中央 x=(576-80)/2=248, y=(288-100)/2=94）
+export const NUMIMG = { w: 80, h: 100, x: 248, y: 94 } as const
 export const numImg = new ImageContainerProperty({
   xPosition: NUMIMG.x, yPosition: NUMIMG.y, width: NUMIMG.w, height: NUMIMG.h,
   containerID: 11, containerName: 'num',

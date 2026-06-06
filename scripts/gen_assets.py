@@ -45,13 +45,13 @@ def draw_center(d, box, s, f, fill=255, stroke=0):
     d.text((x0 + (x1 - x0 - tw) / 2 - l, y0 + (y1 - y0 - th) / 2 - t),
            s, font=f, fill=fill, stroke_width=stroke, stroke_fill=0)
 
-# ── 数字 d0..d10（100x120・小型化で実機BLEを高速化。インク切り出しで厳密中央）──
-DW, DH = 100, 120
+# ── 数字 d0..d10（80x100・1ビット化で実機BLEをさらに高速化。インク切り出しで厳密中央）──
+DW, DH = 80, 100
 for n in range(0, 11):
-    f = font(116) if n < 10 else font(84)  # "10" は2桁ぶん小さく
+    f = font(94) if n < 10 else font(66)  # "10" は2桁ぶん小さく
     im = Image.new('L', (DW, DH), 0)
     paste_center(im, text_img(str(n), f), (0, 0, DW, DH))
-    im.save(os.path.join(OUT, f'd{n}.png'))
+    im.convert('1', dither=Image.NONE).save(os.path.join(OUT, f'd{n}.png'))  # 1ビット白黒
 
 # ── フィニッシャー共通 ──
 FW, FH = 288, 144
