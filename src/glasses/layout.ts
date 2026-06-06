@@ -34,6 +34,13 @@ export const quoteC = new TextContainerProperty({
   borderWidth: 0, paddingLength: 0,
   containerID: 5, containerName: 'quote', isEventCapture: 0, content: ' ',
 })
+// 小サイズ用の数字テキスト（即時・安定。中央付近）。large=画像 / small=このテキスト。
+export const numTextC = new TextContainerProperty({
+  xPosition: 284, yPosition: 128, width: 80, height: 44,
+  borderWidth: 0, paddingLength: 0,
+  containerID: 6, containerName: 'numtext', isEventCapture: 0, content: ' ',
+})
+
 // ── 画像 ──
 // 大きな数字（64×80・1ビット画像。画面中央 x=(576-64)/2=256, y=(288-80)/2=104）
 export const NUMIMG = { w: 64, h: 80, x: 256, y: 104 } as const

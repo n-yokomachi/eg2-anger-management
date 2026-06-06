@@ -1,13 +1,13 @@
 import { waitForEvenAppBridge, OsEventTypeList } from '@evenrealities/even_hub_sdk'
 import { loadSettings, saveSettings } from './storage'
 import { countSequence } from './counter'
-import { pickFinisher, MANAGED_DESIGNS } from './finisher'
+import { pickFinisher, MANAGED_DESIGNS, type FinisherResult } from './finisher'
 import { QUOTES } from './quotes'
 import { GLASSES } from './i18n'
 import { createPage, enterCounting, tickCount, enterMenu, updateMenu, enterQuote, enterManaged } from './glasses/render'
 import { preloadImages } from './glasses/assets'
 import { mountPhoneUi } from './phone/ui'
-import type { Settings, Lang, Region, FinisherMode } from './settings'
+import type { Settings, Lang, Region, FinisherMode, NumberSize } from './settings'
 
 window.addEventListener('error', (e) => e.preventDefault())
 window.addEventListener('unhandledrejection', (e) => e.preventDefault())
@@ -22,6 +22,7 @@ type Mode = 'counting' | 'paused' | 'finisher' | 'next' | 'showcase'
 let mode: Mode = 'counting'
 let seq: number[] = []
 let menuSel = 0
+let pendingFinisher: FinisherResult | null = null // カウント開始前に決定する演出
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
 
 // 進捗ドット数: japan=6 / america=10（カウント0と演出は含めない）
@@ -33,16 +34,20 @@ async function startCount(): Promise<void> {
   mode = 'counting'
   seq = countSequence(settings.region)
   const total = dotsTotalFor(settings.region)
+  const large = settings.numberSize === 'large'
   const token = ++countToken
-  await enterCounting(rB, settings.language, total)
+  // 演出はカウント開始前に決定。ANGER MANAGED ならカウント中に画像を先読みしておく。
+  pendingFinisher = pickFinisher(settings.finisher)
+  if (pendingFinisher.kind === 'managed') void preloadImages([`${pendingFinisher.design}.png`])
+  await enterCounting(rB, settings.language, total, large)
   const base = performance.now()
   for (let idx = 0; idx < seq.length; idx++) {
     if (token !== countToken || mode !== 'counting') return // 中断（メニュー等）
-    await tickCount(rB, seq[idx], total, Math.min(idx + 1, total))
+    await tickCount(rB, seq[idx], total, Math.min(idx + 1, total), large)
     if (idx === seq.length - 1) {
       await sleep(1000) // 最後の数字はきっちり1秒表示してから演出へ
     } else {
-      // 画像送信にかかった時間を差し引き、各数字を均等な間隔(約1秒)で表示する
+      // 送信にかかった時間を差し引き、各数字を均等な間隔(約1秒)で表示する
       const wait = base + (idx + 1) * 1000 - performance.now()
       if (wait > 0) await sleep(wait)
     }
@@ -52,7 +57,7 @@ async function startCount(): Promise<void> {
 
 async function showFinisher(): Promise<void> {
   mode = 'finisher'
-  const result = pickFinisher(settings.finisher)
+  const result = pendingFinisher ?? pickFinisher(settings.finisher) // カウント前に決定済みのものを使う
   if (result.kind === 'quote') await enterQuote(rB, result.quote, settings.language)
   else await enterManaged(rB, result.design)
 }
@@ -158,6 +163,7 @@ function renderPhone() {
     onLanguage: (v: Lang) => { settings = { ...settings, language: v }; void saveSettings(sB, settings); renderPhone() },
     onRegion: (v: Region) => { settings = { ...settings, region: v }; void saveSettings(sB, settings) },
     onFinisher: (v: FinisherMode) => { settings = { ...settings, finisher: v }; void saveSettings(sB, settings) },
+    onNumberSize: (v: NumberSize) => { settings = { ...settings, numberSize: v }; void saveSettings(sB, settings); restartFlow() },
     onTest: (v: boolean) => { settings = { ...settings, testMode: v }; void saveSettings(sB, settings); restartFlow() },
   })
 }

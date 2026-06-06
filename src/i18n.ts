@@ -48,6 +48,7 @@ export interface UiStrings {
   title: string; status: string
   america: string; japan: string
   finQuote: string; finManaged: string; finRandom: string
+  numLarge: string; numSmall: string; numNote: string
   testDesc: string
 }
 export const UI: Record<Lang, UiStrings> = {
@@ -56,6 +57,8 @@ export const UI: Record<Lang, UiStrings> = {
     status: '* This is a joke app.\nLaunch it and a countdown begins; when it finishes, a finisher plays.\nYour companion for anger management.',
     america: 'America', japan: 'Japan',
     finQuote: 'Quote', finManaged: 'ANGER MANAGED', finRandom: 'Random',
+    numLarge: 'Large', numSmall: 'Small',
+    numNote: 'Large draws the number as an image, so it may lag on the glasses. Small uses crisp, instant text.',
     testDesc: 'When on, skips the count and cycles through every finisher in order (for testing).',
   },
   ja: {
@@ -63,6 +66,8 @@ export const UI: Record<Lang, UiStrings> = {
     status: '※これはジョークアプリです。\nアプリを起動するとカウントが始まり、完了すると演出が入ります。\nあなたのアンガーマネジメントのお供に。',
     america: 'America', japan: 'Japan',
     finQuote: '名言', finManaged: 'ANGER MANAGED', finRandom: 'ランダム',
+    numLarge: '大', numSmall: '小',
+    numNote: '「大」は数字を画像で描くため、グラスでの表示が遅延することがあります。「小」は即時表示のテキストです。',
     testDesc: 'ONにすると、カウントせず全ての演出を順番に表示します（テスト用）。',
   },
 }

@@ -1,11 +1,16 @@
 export type Lang = 'ja' | 'en'
 export type Region = 'america' | 'japan'      // カウントの数字・向きのみ決定
 export type FinisherMode = 'quote' | 'managed' | 'both'
+export type NumberSize = 'large' | 'small'    // large=画像(遅延あり) / small=テキスト(安定)
 
 // testMode: ON でカウントを行わず、全演出パターンを順番に表示する（デバッグ用）
-export interface Settings { language: Lang; region: Region; finisher: FinisherMode; testMode: boolean }
+export interface Settings {
+  language: Lang; region: Region; finisher: FinisherMode; numberSize: NumberSize; testMode: boolean
+}
 
-export const DEFAULT_SETTINGS: Settings = { language: 'en', region: 'japan', finisher: 'both', testMode: false }
+export const DEFAULT_SETTINGS: Settings = {
+  language: 'en', region: 'japan', finisher: 'both', numberSize: 'large', testMode: false,
+}
 
 export function defaultLanguageFromCountry(country?: string | null): Lang {
   const c = (country ?? '').trim().toUpperCase()
@@ -20,8 +25,9 @@ export function parseSettings(raw: string | null | undefined, fallback: Settings
     const region: Region = o.region === 'america' ? 'america' : o.region === 'japan' ? 'japan' : fallback.region
     const finisher: FinisherMode =
       o.finisher === 'quote' || o.finisher === 'managed' || o.finisher === 'both' ? o.finisher : fallback.finisher
+    const numberSize: NumberSize = o.numberSize === 'small' ? 'small' : o.numberSize === 'large' ? 'large' : fallback.numberSize
     const testMode: boolean = typeof o.testMode === 'boolean' ? o.testMode : fallback.testMode
-    return { language, region, finisher, testMode }
+    return { language, region, finisher, numberSize, testMode }
   } catch { return fallback }
 }
 

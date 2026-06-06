@@ -2,7 +2,7 @@ import {
   CreateStartUpPageContainer, RebuildPageContainer, TextContainerProperty, ImageContainerProperty,
   TextContainerUpgrade,
 } from '@evenrealities/even_hub_sdk'
-import { evtLayer, labelC, dotsC, menuC, quoteC, numImg, finImg } from './layout'
+import { evtLayer, labelC, dotsC, menuC, quoteC, numTextC, numImg, finImg } from './layout'
 import { sendImage } from './assets'
 import { GLASSES } from '../i18n'
 import { authorLabel, type Quote } from '../quotes'
@@ -52,7 +52,7 @@ export function centeredDotsX(n: number): number {
 // ことで、rebuild 後に前状態の画像が残らない（数字と名言/メニューの被りを防ぐ排他制御）。
 // dotsX を渡すと進捗ドットのコンテナ x を上書きして中央化する。
 function pageWith(
-  t: { label?: string; dots?: string; menu?: string; quote?: string },
+  t: { label?: string; dots?: string; menu?: string; quote?: string; num?: string },
   images: ImageContainerProperty[] = [],
   dotsX?: number,
 ) {
@@ -65,6 +65,7 @@ function pageWith(
     set(evtLayer, ' '),
     set(labelC, t.label ?? ' '),
     dots,
+    set(numTextC, t.num ?? ' '),
     set(menuC, t.menu ?? ' '),
     set(quoteC, t.quote ?? ' '),
   ]
@@ -81,18 +82,22 @@ export async function createPage(bridge: Bridge): Promise<void> {
   await bridge.createStartUpPageContainer(new CreateStartUpPageContainer(pageWith({})))
 }
 
-// カウント開始（rebuild）。小型の数字画像コンテナを宣言（他状態の画像残留を断つ）。
-export async function enterCounting(bridge: Bridge, lang: Lang, dotsTotal: number): Promise<void> {
+// カウント開始（rebuild）。large=画像コンテナを宣言 / small=テキストのみ。
+export async function enterCounting(
+  bridge: Bridge, lang: Lang, dotsTotal: number, large: boolean,
+): Promise<void> {
   await bridge.rebuildPageContainer(new RebuildPageContainer(
-    pageWith({ label: GLASSES[lang].title, dots: progressDots(dotsTotal, 0) }, [numImg], centeredDotsX(dotsTotal)),
+    pageWith({ label: GLASSES[lang].title, dots: progressDots(dotsTotal, 0) },
+      large ? [numImg] : [], centeredDotsX(dotsTotal)),
   ))
 }
 
-// カウント1コマ: 先に数字画像を出し終えてから進捗ドット（テキスト）を更新（ドット先行のズレを抑える）。
+// カウント1コマ。large=数字画像→ドット / small=数字テキスト→ドット（どちらも更新後にドット）。
 export async function tickCount(
-  bridge: Bridge, n: number, dotsTotal: number, dotsFilled: number,
+  bridge: Bridge, n: number, dotsTotal: number, dotsFilled: number, large: boolean,
 ): Promise<void> {
-  await sendImage(bridge, 11, 'num', `d${n}.png`)
+  if (large) await sendImage(bridge, 11, 'num', `d${n}.png`)
+  else await up(bridge, 6, 'numtext', String(n))
   await up(bridge, 3, 'dots', progressDots(dotsTotal, dotsFilled))
 }
 
