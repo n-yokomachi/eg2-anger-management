@@ -70,14 +70,18 @@ d.ellipse([cx - 96, cy - 56, cx + 96, cy + 56], fill=0)
 managed_text(d)
 im.save(os.path.join(OUT, 'speedlines.png'))
 
-# 2) ハーフトーン網点（中央を矩形で抜いて文字スペースを確保）
+# 2) ハーフトーン網点（中央フレーム内に文字をきっちり収め、周囲を網点の縁取りに）
 im = Image.new('L', (FW, FH), 0); d = ImageDraw.Draw(im)
 for yy in range(8, FH, 14):
     for xx in range(8, FW, 14):
         rr = max(1, 5 - math.hypot(xx - cx, yy - cy) / 40)
         d.ellipse([xx - rr, yy - rr, xx + rr, yy + rr], fill=150)
-d.rectangle([cx - 104, cy - 50, cx + 104, cy + 50], fill=0)
-managed_text(d)
+# 文字フレーム（この矩形内の網点を消し、ここに文字を収める）
+FX0, FY0, FX1, FY1 = 34, 14, FW - 34, FH - 14   # x34..254, y14..130
+d.rectangle([FX0, FY0, FX1, FY1], fill=0)
+hf = font(40)
+draw_center(d, (FX0, FY0 + 4, FX1, (FY0 + FY1) // 2), 'ANGER', hf)
+draw_center(d, (FX0, (FY0 + FY1) // 2, FX1, FY1 - 4), 'MANAGED', hf)
 im.save(os.path.join(OUT, 'halftone.png'))
 
 # 3) 衝撃波リング（元の大きいサイズ。黒矩形でのくり抜きはせず、文字は黒フチ(stroke)で可読化
