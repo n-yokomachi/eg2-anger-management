@@ -115,10 +115,10 @@ export async function enterQuote(bridge: Bridge, q: Quote, lang: Lang): Promise<
   await bridge.rebuildPageContainer(new RebuildPageContainer(pageWith({ quote: quoteText(q, lang) })))
 }
 
-// ANGER MANAGED フィニッシャー（画像取得まで簡易ローディング → 画像表示 → ローディング消去）。
+// ANGER MANAGED フィニッシャー（画像取得まで簡易ローディング「• • •」→ 画像表示 → 消去）。
 export async function enterManaged(bridge: Bridge, design: ManagedDesign): Promise<void> {
-  // まずローディングを出す（画像枠も宣言）。BLE呼び出しは直列に保つ（rebuild→画像→消去）。
-  await bridge.rebuildPageContainer(new RebuildPageContainer(pageWith({ menu: 'Loading…' }, [finImg])))
+  // 文字を出さず点だけの簡易ローディング。BLE呼び出しは直列に保つ（rebuild→画像→消去）。
+  await bridge.rebuildPageContainer(new RebuildPageContainer(pageWith({ menu: '• • •' }, [finImg])))
   await sendImage(bridge, 12, 'finimg', `${design}.png`) // 取得・表示（遅い場合あり）
   await up(bridge, 4, 'menu', ' ')                        // 画像が出たらローディング消去
 }
