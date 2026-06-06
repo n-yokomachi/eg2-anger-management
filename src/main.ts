@@ -157,7 +157,7 @@ function renderPhone() {
 
 // ── 起動 ──
 await createPage(rB) // 先に空ページを作成してから状態遷移（rebuild）に入る
-// 数字画像(d0..d10)と演出画像を起動時に先読み（fetch遅延をゼロに）
+// 数字画像(d0..d10)と演出画像を起動時に先読み（表示時のfetch遅延をゼロに）
 void preloadImages([
   ...Array.from({ length: 11 }, (_, i) => `d${i}.png`),
   ...MANAGED_DESIGNS.map((d) => `${d}.png`),

@@ -88,8 +88,7 @@ export async function enterCounting(bridge: Bridge, lang: Lang, dotsTotal: numbe
   ))
 }
 
-// カウント1コマ: 先に数字画像（遅い）を出し終えてから進捗ドット（テキスト＝即時）を更新する。
-// この順にすることで、画像読込が遅延しても「ドットだけ先に進んで数字とズレる」のを防ぐ。
+// カウント1コマ: 先に数字画像を出し終えてから進捗ドット（テキスト）を更新（ドット先行のズレを抑える）。
 export async function tickCount(
   bridge: Bridge, n: number, dotsTotal: number, dotsFilled: number,
 ): Promise<void> {
