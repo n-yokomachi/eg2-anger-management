@@ -1,7 +1,7 @@
 import { waitForEvenAppBridge, OsEventTypeList } from '@evenrealities/even_hub_sdk'
 import { loadSettings, saveSettings } from './storage'
 import { countSequence } from './counter'
-import { pickFinisher, type FinisherResult } from './finisher'
+import { pickFinisher } from './finisher'
 import { GLASSES } from './i18n'
 import { createPage, renderCount, renderMenu, renderQuote, renderManaged } from './glasses/render'
 import { mountPhoneUi } from './phone/ui'
@@ -21,7 +21,6 @@ let mode: Mode = 'counting'
 let seq: number[] = []
 let idx = 0                       // 現在のカウント位置
 let menuSel = 0
-let lastFinisher: FinisherResult | null = null
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
 
 // ── カウント駆動（前描画完了後に最低1秒で次へ）──
@@ -41,9 +40,9 @@ async function startCount(): Promise<void> {
 
 async function showFinisher(): Promise<void> {
   mode = 'finisher'
-  lastFinisher = pickFinisher(settings.finisher)
-  if (lastFinisher.kind === 'quote') await renderQuote(rB, lastFinisher.quote, settings.language)
-  else await renderManaged(rB, lastFinisher.design)
+  const result = pickFinisher(settings.finisher)
+  if (result.kind === 'quote') await renderQuote(rB, result.quote, settings.language)
+  else await renderManaged(rB, result.design)
 }
 
 function pausedItems(lang: Lang): string[] {

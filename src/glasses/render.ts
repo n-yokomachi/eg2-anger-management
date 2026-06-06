@@ -1,5 +1,5 @@
 import {
-  CreateStartUpPageContainer, RebuildPageContainer, TextContainerUpgrade,
+  CreateStartUpPageContainer, TextContainerUpgrade,
 } from '@evenrealities/even_hub_sdk'
 import { PAGE, BIGNUM, FINIMG } from './layout'
 import { sendImage, clearImage } from './assets'
@@ -10,7 +10,6 @@ import type { ManagedDesign } from '../finisher'
 
 type Bridge = {
   createStartUpPageContainer(p: CreateStartUpPageContainer): Promise<unknown>
-  rebuildPageContainer(p: RebuildPageContainer): Promise<unknown>
   textContainerUpgrade(u: TextContainerUpgrade): Promise<unknown>
   updateImageRawData: Parameters<typeof sendImage>[0]['updateImageRawData']
 }
