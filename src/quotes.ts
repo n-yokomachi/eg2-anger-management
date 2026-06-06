@@ -1,0 +1,111 @@
+import type { Lang } from './settings'
+
+export interface Quote {
+  id: number
+  author_en: string; author_ja: string
+  text_en: string;   text_ja: string
+  traditional: boolean   // 出典が伝承的（著者に (trad.)/（伝）を付す）
+}
+
+export const QUOTES: Quote[] = [
+  { id: 1,  author_en: 'Thomas Jefferson', author_ja: 'ジェファーソン', traditional: false,
+    text_en: 'When angry, count ten before you speak; if very angry, a hundred.',
+    text_ja: '腹が立ったら口を開く前に10数えよ。とても腹が立ったら100数えよ。' },
+  { id: 2,  author_en: 'Mark Twain', author_ja: 'マーク・トウェイン', traditional: false,
+    text_en: 'When angry, count four; when very angry, swear.',
+    text_ja: '腹が立ったら四つ数えろ。とても腹が立ったら、悪態をつけ。' },
+  { id: 3,  author_en: 'Seneca', author_ja: 'セネカ', traditional: false,
+    text_en: 'The greatest remedy for anger is delay.',
+    text_ja: '怒りに対する最良の薬は、時間を置くことだ。' },
+  { id: 4,  author_en: 'Seneca', author_ja: 'セネカ', traditional: true,
+    text_en: 'Anger, if not restrained, is frequently more hurtful to us than the injury that provokes it.',
+    text_ja: '怒りは、抑えねば、それを招いた害よりも深く我々を傷つける。' },
+  { id: 5,  author_en: 'Marcus Aurelius', author_ja: 'マルクス・アウレリウス', traditional: false,
+    text_en: 'How much more grievous are the consequences of anger than the causes of it.',
+    text_ja: '怒りがもたらす結果は、その原因よりずっと重い。' },
+  { id: 6,  author_en: 'Aristotle', author_ja: 'アリストテレス', traditional: false,
+    text_en: 'Anybody can become angry — that is easy; but to be angry with the right person, to the right degree, is not easy.',
+    text_ja: '誰でも怒れる。だが適切な相手に適切な程度で怒るのは難しい。' },
+  { id: 7,  author_en: 'Horace', author_ja: 'ホラティウス', traditional: false,
+    text_en: 'Anger is a brief madness.',
+    text_ja: '怒りとは、束の間の狂気である。' },
+  { id: 8,  author_en: 'Pythagoras', author_ja: 'ピタゴラス', traditional: true,
+    text_en: 'Anger begins in folly, and ends in repentance.',
+    text_ja: '怒りは愚かさに始まり、後悔に終わる。' },
+  { id: 9,  author_en: 'Epictetus', author_ja: 'エピクテトス', traditional: true,
+    text_en: 'Any person capable of angering you becomes your master.',
+    text_ja: 'あなたを怒らせられる者は、誰であれあなたの主人となる。' },
+  { id: 10, author_en: 'Publilius Syrus', author_ja: 'プブリリウス・シルス', traditional: false,
+    text_en: 'An angry man is again angry with himself when he returns to reason.',
+    text_ja: '怒れる者は、正気に返ったとき自分自身に怒る。' },
+  { id: 11, author_en: 'Lao Tzu', author_ja: '老子', traditional: false,
+    text_en: 'He who conquers others is strong; he who conquers himself is mighty.',
+    text_ja: '人に勝つ者は力あり、自らに勝つ者は強し。' },
+  { id: 12, author_en: 'Lao Tzu', author_ja: '老子', traditional: true,
+    text_en: 'Requite injury with kindness.',
+    text_ja: '怨みに報いるに徳をもってせよ。' },
+  { id: 13, author_en: 'Confucius', author_ja: '孔子', traditional: false,
+    text_en: 'When anger rises, think of the consequences.',
+    text_ja: '怒りが湧いたら、その結末を思え。' },
+  { id: 14, author_en: 'Buddha', author_ja: 'ブッダ', traditional: false,
+    text_en: 'Hatred is never appeased by hatred in this world; by non-hatred alone is it appeased.',
+    text_ja: '怨みは怨みによって決してやまない。怨みを捨ててこそやむ。' },
+  { id: 15, author_en: 'Buddha', author_ja: 'ブッダ', traditional: false,
+    text_en: 'Conquer anger by non-anger; conquer evil by good.',
+    text_ja: '怒りを怒らないことで、悪を善によって克服せよ。' },
+  { id: 16, author_en: 'Chinese proverb', author_ja: '中国のことわざ', traditional: false,
+    text_en: 'If you are patient in one moment of anger, you will escape a hundred days of sorrow.',
+    text_ja: '一時の怒りを堪えれば、百日の憂いを免れる。' },
+  { id: 17, author_en: 'Proverbs 15:1', author_ja: '箴言', traditional: false,
+    text_en: 'A soft answer turns away wrath, but a harsh word stirs up anger.',
+    text_ja: '柔らかな答えは怒りを鎮め、激しい言葉は怒りをかき立てる。' },
+  { id: 18, author_en: 'Proverbs 16:32', author_ja: '箴言', traditional: false,
+    text_en: 'Whoever is slow to anger is better than the mighty.',
+    text_ja: '怒りを遅くする者は勇士にまさる。' },
+  { id: 19, author_en: 'Shakespeare', author_ja: 'シェイクスピア', traditional: false,
+    text_en: 'Heat not a furnace for your foe so hot that it do singe yourself.',
+    text_ja: '敵のために炉を熱くしすぎるな。己が身を焦がすことになる。' },
+  { id: 20, author_en: 'Benjamin Franklin', author_ja: 'フランクリン', traditional: false,
+    text_en: 'Anger is never without a reason, but seldom with a good one.',
+    text_ja: '怒りに理由がないことはない。だが、良い理由であることは稀だ。' },
+  { id: 21, author_en: 'Marcus Aurelius', author_ja: 'マルクス・アウレリウス', traditional: false,
+    text_en: 'The best revenge is to be unlike him who performed the injury.',
+    text_ja: '最良の復讐とは、害をなした者と同じようにならないことだ。' },
+  { id: 22, author_en: 'Buddha', author_ja: 'ブッダ', traditional: false,
+    text_en: 'Whoever holds back rising anger like a chariot gone astray, him I call a true charioteer.',
+    text_ja: '込み上げる怒りを、暴走する馬車を御するように抑える者こそ、真の御者だ。' },
+  { id: 23, author_en: 'Gandhi', author_ja: 'ガンジー', traditional: true,
+    text_en: 'Anger controlled can be transmuted into a power which can move the world.',
+    text_ja: '制御された怒りは、世界を動かす力へと変えられる。' },
+  { id: 24, author_en: 'Proverbs 19:11', author_ja: '箴言', traditional: false,
+    text_en: 'Good sense makes one slow to anger, and it is his glory to overlook an offense.',
+    text_ja: '思慮深い人は怒りを遅くし、過ちを見過ごすことを誉れとする。' },
+  { id: 25, author_en: 'Booker T. Washington', author_ja: 'ブッカー・T・ワシントン', traditional: false,
+    text_en: 'I will permit no man to narrow and degrade my soul by making me hate him.',
+    text_ja: '誰かを憎ませて自分の魂を貶める真似は、誰にも許さない。' },
+  { id: 26, author_en: 'Will Rogers', author_ja: 'ウィル・ロジャース', traditional: true,
+    text_en: 'People who fly into a rage always make a bad landing.',
+    text_ja: 'カッとなって飛び立つ人は、いつも着地に失敗する。' },
+  { id: 27, author_en: 'Phyllis Diller', author_ja: 'フィリス・ディラー', traditional: false,
+    text_en: 'Never go to bed angry. Stay up and fight.',
+    text_ja: '怒ったまま寝てはいけない。起きて戦え。' },
+  { id: 28, author_en: 'Tokugawa Ieyasu', author_ja: '徳川家康', traditional: true,
+    text_en: 'Regard anger as your enemy.',
+    text_ja: '怒りは敵と思え。' },
+  { id: 29, author_en: 'Japanese proverb', author_ja: 'ことわざ', traditional: false,
+    text_en: 'A short temper is a loss.',
+    text_ja: '短気は損気。' },
+  { id: 30, author_en: 'Japanese proverb', author_ja: 'ことわざ', traditional: false,
+    text_en: 'Sometimes to lose is to win.',
+    text_ja: '負けるが勝ち。' },
+]
+
+export function authorLabel(q: Quote, lang: Lang): string {
+  const base = lang === 'ja' ? q.author_ja : q.author_en
+  if (!q.traditional) return base
+  return lang === 'ja' ? `${base}（伝）` : `${base} (trad.)`
+}
+
+export function pickQuote(rng: () => number = Math.random): Quote {
+  return QUOTES[Math.floor(rng() * QUOTES.length)]
+}
