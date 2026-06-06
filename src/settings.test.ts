@@ -13,7 +13,7 @@ test('JP系の country は ja, それ以外は en', () => {
 })
 
 test('parse/serialize の往復', () => {
-  const s: Settings = { language: 'ja', region: 'america', finisher: 'managed', numberSize: 'small' }
+  const s: Settings = { language: 'ja', region: 'america', finisher: 'managed' }
   expect(parseSettings(serializeSettings(s), DEFAULT_SETTINGS)).toEqual(s)
 })
 

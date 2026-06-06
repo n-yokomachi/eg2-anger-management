@@ -45,13 +45,7 @@ def draw_center(d, box, s, f, fill=255, stroke=0):
     d.text((x0 + (x1 - x0 - tw) / 2 - l, y0 + (y1 - y0 - th) / 2 - t),
            s, font=f, fill=fill, stroke_width=stroke, stroke_fill=0)
 
-# ── 数字 d0..d10（64x80・少し小さく＆1ビットで実機BLEを高速化。インク切り出しで厳密中央）──
-DW, DH = 64, 80
-for n in range(0, 11):
-    f = font(76) if n < 10 else font(54)  # "10" は2桁ぶん小さく
-    im = Image.new('L', (DW, DH), 0)
-    paste_center(im, text_img(str(n), f), (0, 0, DW, DH))
-    im.convert('1', dither=Image.NONE).save(os.path.join(OUT, f'd{n}.png'))  # 1ビット白黒
+# 数字はテキスト描画に変更したため、数字画像は生成しない（演出画像のみ）。
 
 # ── フィニッシャー共通 ──
 FW, FH = 288, 144

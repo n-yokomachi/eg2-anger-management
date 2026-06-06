@@ -1,11 +1,10 @@
-import type { Settings, Lang, Region, FinisherMode, NumberSize } from '../settings'
+import type { Settings, Lang, Region, FinisherMode } from '../settings'
 import { UI, regionReason, finisherReason } from '../i18n'
 
 export interface PhoneHandlers {
   onLanguage: (v: Lang) => void
   onRegion: (v: Region) => void
   onFinisher: (v: FinisherMode) => void
-  onNumberSize: (v: NumberSize) => void
 }
 
 export function mountPhoneUi(s: Settings, h: PhoneHandlers): void {
@@ -34,12 +33,6 @@ export function mountPhoneUi(s: Settings, h: PhoneHandlers): void {
         <button data-v="quote">${t.finQuote}</button><button data-v="managed">${t.finManaged}</button><button data-v="both">${t.finRandom}</button>
       </div>
       <p class="am-why" id="am-fin-why">${finisherReason(s.finisher, s.language)}</p>
-
-      <div class="am-lbl">NUMBER / 数字</div>
-      <div class="am-seg" id="am-num">
-        <button data-v="large">${t.numLarge}</button><button data-v="small">${t.numSmall}</button>
-      </div>
-      <p class="am-why">${t.numNote}</p>
     </div>`
   injectStyles()
 
@@ -48,7 +41,6 @@ export function mountPhoneUi(s: Settings, h: PhoneHandlers): void {
     seg.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.v === v))
   }
   mark('#am-lang', s.language); mark('#am-region', s.region); mark('#am-fin', s.finisher)
-  mark('#am-num', s.numberSize)
 
   app.querySelector('#am-lang')!.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest('button'); if (!b) return
@@ -65,10 +57,6 @@ export function mountPhoneUi(s: Settings, h: PhoneHandlers): void {
     const v = b.dataset.v as FinisherMode; mark('#am-fin', v)
     app.querySelector('#am-fin-why')!.textContent = finisherReason(v, s.language)
     h.onFinisher(v)
-  })
-  app.querySelector('#am-num')!.addEventListener('click', (e) => {
-    const b = (e.target as HTMLElement).closest('button'); if (!b) return
-    const v = b.dataset.v as NumberSize; mark('#am-num', v); h.onNumberSize(v)
   })
 }
 

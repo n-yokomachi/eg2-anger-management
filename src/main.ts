@@ -6,7 +6,7 @@ import { GLASSES } from './i18n'
 import { createPage, enterCounting, tickCount, enterMenu, updateMenu, enterQuote, enterManaged } from './glasses/render'
 import { preloadImages } from './glasses/assets'
 import { mountPhoneUi } from './phone/ui'
-import type { Settings, Lang, Region, FinisherMode, NumberSize } from './settings'
+import type { Settings, Lang, Region, FinisherMode } from './settings'
 
 window.addEventListener('error', (e) => e.preventDefault())
 window.addEventListener('unhandledrejection', (e) => e.preventDefault())
@@ -33,16 +33,15 @@ async function startCount(): Promise<void> {
   mode = 'counting'
   seq = countSequence(settings.region)
   const total = dotsTotalFor(settings.region)
-  const large = settings.numberSize === 'large'
   const token = ++countToken
   // 演出はカウント開始前に決定。ANGER MANAGED ならカウント中に画像を先読みしておく。
   pendingFinisher = pickFinisher(settings.finisher)
   if (pendingFinisher.kind === 'managed') void preloadImages([`${pendingFinisher.design}.png`])
-  await enterCounting(rB, settings.language, total, large)
+  await enterCounting(rB, settings.language, total)
   const base = performance.now()
   for (let idx = 0; idx < seq.length; idx++) {
     if (token !== countToken || mode !== 'counting') return // 中断（メニュー等）
-    await tickCount(rB, seq[idx], total, Math.min(idx + 1, total), large)
+    await tickCount(rB, seq[idx], total, Math.min(idx + 1, total))
     if (idx === seq.length - 1) {
       await sleep(1000) // 最後の数字はきっちり1秒表示してから演出へ
     } else {
@@ -59,12 +58,6 @@ async function showFinisher(): Promise<void> {
   const result = pendingFinisher ?? pickFinisher(settings.finisher) // カウント前に決定済みのものを使う
   if (result.kind === 'quote') await enterQuote(rB, result.quote, settings.language)
   else await enterManaged(rB, result.design)
-}
-
-// 表示フローを再起動（設定変更で即反映）。進行中のカウントを停止して数え直す。
-function restartFlow(): void {
-  countToken++ // 進行中ループを停止
-  void startCount()
 }
 
 // PAUSED / NEXT とも選択肢は [もう一度, 終了]（再開はもう一度と同じ動きのため廃止）
@@ -140,16 +133,12 @@ function renderPhone() {
     onLanguage: (v: Lang) => { settings = { ...settings, language: v }; void saveSettings(sB, settings); renderPhone() },
     onRegion: (v: Region) => { settings = { ...settings, region: v }; void saveSettings(sB, settings) },
     onFinisher: (v: FinisherMode) => { settings = { ...settings, finisher: v }; void saveSettings(sB, settings) },
-    onNumberSize: (v: NumberSize) => { settings = { ...settings, numberSize: v }; void saveSettings(sB, settings); restartFlow() },
   })
 }
 
 // ── 起動 ──
 await createPage(rB) // 先に空ページを作成してから状態遷移（rebuild）に入る
-// 数字画像(d0..d10)と演出画像を起動時に先読み（表示時のfetch遅延をゼロに）
-void preloadImages([
-  ...Array.from({ length: 11 }, (_, i) => `d${i}.png`),
-  ...MANAGED_DESIGNS.map((d) => `${d}.png`),
-])
+// 演出画像を起動時に先読み（表示時のfetch遅延をゼロに）
+void preloadImages(MANAGED_DESIGNS.map((d) => `${d}.png`))
 renderPhone()
 void startCount()

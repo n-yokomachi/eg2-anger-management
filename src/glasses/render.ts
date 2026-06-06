@@ -2,7 +2,7 @@ import {
   CreateStartUpPageContainer, RebuildPageContainer, TextContainerProperty, ImageContainerProperty,
   TextContainerUpgrade,
 } from '@evenrealities/even_hub_sdk'
-import { evtLayer, labelC, dotsC, menuC, quoteC, numTextC, numImg, finImg } from './layout'
+import { evtLayer, labelC, dotsC, menuC, quoteC, numTextC, finImg } from './layout'
 import { sendImage } from './assets'
 import { GLASSES } from '../i18n'
 import { authorLabel, type Quote } from '../quotes'
@@ -75,6 +75,7 @@ function pageWith(
 const up = (b: Bridge, id: number, name: string, content: string) =>
   b.textContainerUpgrade(new TextContainerUpgrade({ containerID: id, containerName: name, content: content || ' ' }))
     .catch(() => {})
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
 
 // 起動時に1度だけ空ページを作成する（以降の状態遷移はすべて rebuild）。
 // これを最初に呼ばないと rebuild が土台のないページに対して走り、前状態が残る。
@@ -82,22 +83,18 @@ export async function createPage(bridge: Bridge): Promise<void> {
   await bridge.createStartUpPageContainer(new CreateStartUpPageContainer(pageWith({})))
 }
 
-// カウント開始（rebuild）。large=画像コンテナを宣言 / small=テキストのみ。
-export async function enterCounting(
-  bridge: Bridge, lang: Lang, dotsTotal: number, large: boolean,
-): Promise<void> {
+// カウント開始（rebuild）。数字はテキスト（画像コンテナは宣言しない）。
+export async function enterCounting(bridge: Bridge, lang: Lang, dotsTotal: number): Promise<void> {
   await bridge.rebuildPageContainer(new RebuildPageContainer(
-    pageWith({ label: GLASSES[lang].title, dots: progressDots(dotsTotal, 0) },
-      large ? [numImg] : [], centeredDotsX(dotsTotal)),
+    pageWith({ label: GLASSES[lang].title, dots: progressDots(dotsTotal, 0) }, [], centeredDotsX(dotsTotal)),
   ))
 }
 
-// カウント1コマ。large=数字画像→ドット / small=数字テキスト→ドット（どちらも更新後にドット）。
+// カウント1コマ。数字テキスト→進捗ドット（どちらも即時なので常に同期）。
 export async function tickCount(
-  bridge: Bridge, n: number, dotsTotal: number, dotsFilled: number, large: boolean,
+  bridge: Bridge, n: number, dotsTotal: number, dotsFilled: number,
 ): Promise<void> {
-  if (large) await sendImage(bridge, 11, 'num', `d${n}.png`)
-  else await up(bridge, 6, 'numtext', String(n))
+  await up(bridge, 6, 'numtext', String(n))
   await up(bridge, 3, 'dots', progressDots(dotsTotal, dotsFilled))
 }
 
@@ -119,10 +116,15 @@ export async function enterQuote(bridge: Bridge, q: Quote, lang: Lang): Promise<
   await bridge.rebuildPageContainer(new RebuildPageContainer(pageWith({ quote: quoteText(q, lang) })))
 }
 
-// ANGER MANAGED フィニッシャー（画像取得まで簡易ローディング「• • •」→ 画像表示 → 消去）。
+// ANGER MANAGED フィニッシャー（動く点ローディング → 画像表示 → 消去）。
+// BLE呼び出しは直列に保つ（rebuild → アニメ各フレーム → 画像 → 消去）。
+const LOAD_FRAMES = ['•', '• •', '• • •']
 export async function enterManaged(bridge: Bridge, design: ManagedDesign): Promise<void> {
-  // 文字を出さず点だけの簡易ローディング。BLE呼び出しは直列に保つ（rebuild→画像→消去）。
-  await bridge.rebuildPageContainer(new RebuildPageContainer(pageWith({ menu: '• • •' }, [finImg])))
-  await sendImage(bridge, 12, 'finimg', `${design}.png`) // 取得・表示（遅い場合あり）
-  await up(bridge, 4, 'menu', ' ')                        // 画像が出たらローディング消去
+  await bridge.rebuildPageContainer(new RebuildPageContainer(pageWith({ menu: LOAD_FRAMES[0] }, [finImg])))
+  for (let i = 1; i < 5; i++) {            // 点を巡回させて「読み込み中」を動かす
+    await sleep(220)
+    await up(bridge, 4, 'menu', LOAD_FRAMES[i % LOAD_FRAMES.length])
+  }
+  await sendImage(bridge, 12, 'finimg', `${design}.png`) // 画像を表示
+  await up(bridge, 4, 'menu', ' ')                        // ローディング消去
 }
