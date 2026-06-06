@@ -35,10 +35,17 @@ async function startCount(): Promise<void> {
   const total = dotsTotalFor(settings.region)
   const token = ++countToken
   await enterCounting(rB, settings.language, total)
+  const base = performance.now()
   for (let idx = 0; idx < seq.length; idx++) {
     if (token !== countToken || mode !== 'counting') return // 中断（メニュー等）
     await tickCount(rB, seq[idx], total, Math.min(idx + 1, total))
-    await sleep(1000)
+    if (idx === seq.length - 1) {
+      await sleep(1000) // 最後の数字はきっちり1秒表示してから演出へ
+    } else {
+      // 画像送信にかかった時間を差し引き、各数字を均等な間隔(約1秒)で表示する
+      const wait = base + (idx + 1) * 1000 - performance.now()
+      if (wait > 0) await sleep(wait)
+    }
   }
   if (token === countToken && mode === 'counting') await showFinisher()
 }
