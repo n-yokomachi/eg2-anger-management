@@ -20,7 +20,7 @@ test('未保存なら国から既定言語を導く（JP→ja）', async () => {
 test('保存した設定を読み戻せる', async () => {
   const store: Record<string, string> = {}
   const b = fakeBridge(store, 'US')
-  await saveSettings(b, { language: 'ja', region: 'america', finisher: 'quote', numberSize: 'small', testMode: false })
+  await saveSettings(b, { language: 'ja', region: 'america', finisher: 'quote', numberSize: 'small' })
   const s = await loadSettings(b)
-  expect(s).toEqual({ language: 'ja', region: 'america', finisher: 'quote', numberSize: 'small', testMode: false })
+  expect(s).toEqual({ language: 'ja', region: 'america', finisher: 'quote', numberSize: 'small' })
 })

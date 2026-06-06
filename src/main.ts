@@ -2,7 +2,6 @@ import { waitForEvenAppBridge, OsEventTypeList } from '@evenrealities/even_hub_s
 import { loadSettings, saveSettings } from './storage'
 import { countSequence } from './counter'
 import { pickFinisher, MANAGED_DESIGNS, type FinisherResult } from './finisher'
-import { QUOTES } from './quotes'
 import { GLASSES } from './i18n'
 import { createPage, enterCounting, tickCount, enterMenu, updateMenu, enterQuote, enterManaged } from './glasses/render'
 import { preloadImages } from './glasses/assets'
@@ -18,7 +17,7 @@ const sB = bridge as unknown as Parameters<typeof loadSettings>[0]
 
 let settings: Settings = await loadSettings(sB)
 
-type Mode = 'counting' | 'paused' | 'finisher' | 'next' | 'showcase'
+type Mode = 'counting' | 'paused' | 'finisher' | 'next'
 let mode: Mode = 'counting'
 let seq: number[] = []
 let menuSel = 0
@@ -62,30 +61,10 @@ async function showFinisher(): Promise<void> {
   else await enterManaged(rB, result.design)
 }
 
-// テストモード: カウントせず全演出（ANGER MANAGED 4種 → 名言30件）をクリックで順番に表示。
-let showIdx = 0
-function showcaseSteps(): Array<() => Promise<void>> {
-  return [
-    ...MANAGED_DESIGNS.map((d) => () => enterManaged(rB, d)),
-    ...QUOTES.map((q) => () => enterQuote(rB, q, settings.language)),
-  ]
-}
-async function runShowcase(): Promise<void> {
-  mode = 'showcase'
-  showIdx = 0
-  await showcaseSteps()[0]()
-}
-async function showcaseNext(): Promise<void> {
-  const steps = showcaseSteps()
-  showIdx = (showIdx + 1) % steps.length
-  await steps[showIdx]()
-}
-
-// 表示フローを再起動（テストモード切替などで即反映）。進行中のカウント/ショーケースは停止。
+// 表示フローを再起動（設定変更で即反映）。進行中のカウントを停止して数え直す。
 function restartFlow(): void {
   countToken++ // 進行中ループを停止
-  if (settings.testMode) void runShowcase()
-  else void startCount()
+  void startCount()
 }
 
 // PAUSED / NEXT とも選択肢は [もう一度, 終了]（再開はもう一度と同じ動きのため廃止）
@@ -141,12 +120,10 @@ bridge.onEvenHubEvent((ev) => {
     case OsEventTypeList.DOUBLE_CLICK_EVENT:
       if (mode === 'counting') void showPaused()
       else if (mode === 'finisher') void showNext() // 演出後はタップ/ダブルタップ両方でメニュー
-      else if (mode === 'showcase') { countToken++; void bridge.shutDownPageContainer(0) }
       break
     case OsEventTypeList.CLICK_EVENT:
       if (mode === 'finisher') void showNext()
       else if (mode === 'paused' || mode === 'next') void confirmSel()
-      else if (mode === 'showcase') void showcaseNext()
       break
     case OsEventTypeList.SCROLL_TOP_EVENT:
       if (mode === 'paused' || mode === 'next') void moveSel(-1)
@@ -164,7 +141,6 @@ function renderPhone() {
     onRegion: (v: Region) => { settings = { ...settings, region: v }; void saveSettings(sB, settings) },
     onFinisher: (v: FinisherMode) => { settings = { ...settings, finisher: v }; void saveSettings(sB, settings) },
     onNumberSize: (v: NumberSize) => { settings = { ...settings, numberSize: v }; void saveSettings(sB, settings); restartFlow() },
-    onTest: (v: boolean) => { settings = { ...settings, testMode: v }; void saveSettings(sB, settings); restartFlow() },
   })
 }
 
@@ -176,5 +152,4 @@ void preloadImages([
   ...MANAGED_DESIGNS.map((d) => `${d}.png`),
 ])
 renderPhone()
-if (settings.testMode) void runShowcase()
-else void startCount()
+void startCount()

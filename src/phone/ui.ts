@@ -6,7 +6,6 @@ export interface PhoneHandlers {
   onRegion: (v: Region) => void
   onFinisher: (v: FinisherMode) => void
   onNumberSize: (v: NumberSize) => void
-  onTest: (v: boolean) => void
 }
 
 export function mountPhoneUi(s: Settings, h: PhoneHandlers): void {
@@ -41,12 +40,6 @@ export function mountPhoneUi(s: Settings, h: PhoneHandlers): void {
         <button data-v="large">${t.numLarge}</button><button data-v="small">${t.numSmall}</button>
       </div>
       <p class="am-why">${t.numNote}</p>
-
-      <div class="am-lbl">TEST MODE / テスト</div>
-      <div class="am-seg" id="am-test">
-        <button data-v="off">OFF</button><button data-v="on">ON</button>
-      </div>
-      <p class="am-why">${t.testDesc}</p>
     </div>`
   injectStyles()
 
@@ -55,7 +48,7 @@ export function mountPhoneUi(s: Settings, h: PhoneHandlers): void {
     seg.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.v === v))
   }
   mark('#am-lang', s.language); mark('#am-region', s.region); mark('#am-fin', s.finisher)
-  mark('#am-num', s.numberSize); mark('#am-test', s.testMode ? 'on' : 'off')
+  mark('#am-num', s.numberSize)
 
   app.querySelector('#am-lang')!.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest('button'); if (!b) return
@@ -76,11 +69,6 @@ export function mountPhoneUi(s: Settings, h: PhoneHandlers): void {
   app.querySelector('#am-num')!.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest('button'); if (!b) return
     const v = b.dataset.v as NumberSize; mark('#am-num', v); h.onNumberSize(v)
-  })
-  app.querySelector('#am-test')!.addEventListener('click', (e) => {
-    const b = (e.target as HTMLElement).closest('button'); if (!b) return
-    const v = b.dataset.v === 'on'; mark('#am-test', v ? 'on' : 'off')
-    h.onTest(v)
   })
 }
 

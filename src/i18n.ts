@@ -49,7 +49,6 @@ export interface UiStrings {
   america: string; japan: string
   finQuote: string; finManaged: string; finRandom: string
   numLarge: string; numSmall: string; numNote: string
-  testDesc: string
 }
 export const UI: Record<Lang, UiStrings> = {
   en: {
@@ -59,7 +58,6 @@ export const UI: Record<Lang, UiStrings> = {
     finQuote: 'Quote', finManaged: 'ANGER MANAGED', finRandom: 'Random',
     numLarge: 'Large', numSmall: 'Small',
     numNote: 'Large draws the number as an image, so it may lag on the glasses. Small uses crisp, instant text.',
-    testDesc: 'When on, skips the count and cycles through every finisher in order (for testing).',
   },
   ja: {
     title: 'Anger Management',
@@ -68,6 +66,5 @@ export const UI: Record<Lang, UiStrings> = {
     finQuote: '名言', finManaged: 'ANGER MANAGED', finRandom: 'ランダム',
     numLarge: '大', numSmall: '小',
     numNote: '「大」は数字を画像で描くため、グラスでの表示が遅延することがあります。「小」は即時表示のテキストです。',
-    testDesc: 'ONにすると、カウントせず全ての演出を順番に表示します（テスト用）。',
   },
 }

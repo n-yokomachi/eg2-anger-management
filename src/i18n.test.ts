@@ -15,8 +15,8 @@ test('地域の理由文に「俗説」/ folk が含まれる', () => {
 })
 
 test('スマホUI文言が両言語で揃う', () => {
-  expect(UI.ja.title && UI.ja.status && UI.ja.finRandom && UI.ja.testDesc).toBeTruthy()
-  expect(UI.en.title && UI.en.status && UI.en.finRandom && UI.en.testDesc).toBeTruthy()
+  expect(UI.ja.title && UI.ja.status && UI.ja.finRandom && UI.ja.numNote).toBeTruthy()
+  expect(UI.en.title && UI.en.status && UI.en.finRandom && UI.en.numNote).toBeTruthy()
 })
 
 test('演出の説明が選択肢ごとに出る', () => {
