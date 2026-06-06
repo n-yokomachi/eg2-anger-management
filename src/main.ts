@@ -68,6 +68,13 @@ async function showcaseNext(): Promise<void> {
   await steps[showIdx]()
 }
 
+// 表示フローを再起動（テストモード切替などで即反映）。進行中のカウント/ショーケースは停止。
+function restartFlow(): void {
+  countToken++ // 進行中ループを停止
+  if (settings.testMode) void runShowcase()
+  else void startCount()
+}
+
 function pausedItems(lang: Lang): string[] {
   const g = GLASSES[lang]; return [g.menuResume, g.menuRestart, g.menuExit]
 }
@@ -138,7 +145,7 @@ function renderPhone() {
     onLanguage: (v: Lang) => { settings = { ...settings, language: v }; void saveSettings(sB, settings); renderPhone() },
     onRegion: (v: Region) => { settings = { ...settings, region: v }; void saveSettings(sB, settings) },
     onFinisher: (v: FinisherMode) => { settings = { ...settings, finisher: v }; void saveSettings(sB, settings) },
-    onTest: (v: boolean) => { settings = { ...settings, testMode: v }; void saveSettings(sB, settings) },
+    onTest: (v: boolean) => { settings = { ...settings, testMode: v }; void saveSettings(sB, settings); restartFlow() },
   })
 }
 
